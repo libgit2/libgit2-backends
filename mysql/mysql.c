@@ -23,14 +23,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "common.h"
-#include "git2/object.h"
-#include "hash.h"
-#include "odb.h"
-
-#include "git2/odb_backend.h"
-
-#ifdef GIT2_MYSQL_BACKEND
+#include <assert.h>
+#include <string.h>
+#include <git2.h>
+#include <git2/odb_backend.h>
 
 /* MySQL C Api docs:
  *   http://dev.mysql.com/doc/refman/5.1/en/c-api-function-overview.html
@@ -177,7 +173,7 @@ int mysql_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb
     //   return GIT_ERROR;
 
     if (data_len > 0) {
-      *data_p = git__malloc(data_len);
+      *data_p = malloc(data_len);
       result_buffers[2].buffer = *data_p;
       result_buffers[2].buffer_length = data_len;
 
@@ -425,7 +421,7 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   int error;
   my_bool reconnect;
 
-  backend = git__calloc(1, sizeof(mysql_backend));
+  backend = calloc(1, sizeof(mysql_backend));
   if (backend == NULL)
     return GIT_ENOMEM;
 
@@ -462,22 +458,3 @@ cleanup:
   mysql_backend__free((git_odb_backend *)backend);
   return GIT_ERROR;
 }
-
-#else
-
-int git_odb_backend_mysql(git_odb_backend **GIT_UNUSED(backend_out), const char *GIT_UNUSED(mysql_host),
-        const char *GIT_UNUSED(mysql_user), const char *GIT_UNUSED(mysql_passwd), const char *GIT_UNUSED(mysql_db),
-        unsigned int GIT_UNUSED(mysql_port), const char *GIT_UNUSED(mysql_unix_socket), unsigned long GIT_UNUSED(mysql_client_flag))
-{
-  GIT_UNUSED_ARG(backend_out);
-  GIT_UNUSED_ARG(mysql_host);
-  GIT_UNUSED_ARG(mysql_user);
-  GIT_UNUSED_ARG(mysql_passwd);
-  GIT_UNUSED_ARG(mysql_db);
-  GIT_UNUSED_ARG(mysql_port);
-  GIT_UNUSED_ARG(mysql_unix_socket);
-  GIT_UNUSED_ARG(mysql_client_flag);
-  return GIT_ENOTIMPLEMENTED;
-}
-
-#endif /* HAVE_MYSQL */
