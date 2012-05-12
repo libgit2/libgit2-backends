@@ -110,7 +110,7 @@ int hiredis_backend__read_prefix(git_oid *out_oid,
 {
 	if (len >= GIT_OID_HEXSZ) {
 		/* Just match the full identifier */
-		int error = hiredis_backend__read(data_p, len_p, type_p, backend, short_oid);
+		int error = hiredis_backend__read(data_p, len_p, type_p, _backend, short_oid);
 		if (error == GIT_SUCCESS)
 			git_oid_cpy(out_oid, short_oid);
 
