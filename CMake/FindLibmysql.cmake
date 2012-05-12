@@ -14,7 +14,7 @@ IF (LIBMYSQL_INCLUDE_DIR)
   SET(LIBMYSQL_FIND_QUIETLY TRUE)
 ENDIF ()
 
-FIND_PATH(LIBMYSQL_INCLUDE_DIR mysql.h)
+FIND_PATH(LIBMYSQL_INCLUDE_DIR mysql.h /usr/include /usr/local/include /usr/include/mysql /usr/local/include/mysql)
 
 FIND_LIBRARY(LIBMYSQL_LIBRARY mysqlclient)
 
