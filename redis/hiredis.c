@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <string.h>
 #include <git2.h>
-#include <git2/odb_backend.h>
+#include <git2/sys/odb_backend.h>
 #include <hiredis/hiredis.h>
 
 typedef struct {
@@ -54,7 +54,7 @@ int hiredis_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backe
                 reply->element[0]->type != REDIS_REPLY_NIL) {
             *type_p = (git_otype) atoi(reply->element[0]->str);
             *len_p = (size_t) atoi(reply->element[1]->str);
-            error = GIT_SUCCESS;
+            error = GIT_OK;
         } else {
             error = GIT_ENOTFOUND;
         }
@@ -88,10 +88,10 @@ int hiredis_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_o
             *len_p = (size_t) atoi(reply->element[1]->str);
             *data_p = malloc(*len_p);
             if (*data_p == NULL) {
-                error = GIT_ENOMEM;
+                error = GITERR_NOMEMORY;
             } else {
                 memcpy(*data_p, reply->element[2]->str, *len_p);
-                error = GIT_SUCCESS;
+                error = GIT_OK;
             }
         } else {
             error = GIT_ENOTFOUND;
@@ -101,7 +101,7 @@ int hiredis_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_o
     }
 
     freeReplyObject(reply);
-    return error == GIT_SUCCESS;
+    return error == GIT_OK;
 }
 
 int hiredis_backend__read_prefix(git_oid *out_oid,
@@ -111,13 +111,13 @@ int hiredis_backend__read_prefix(git_oid *out_oid,
 	if (len >= GIT_OID_HEXSZ) {
 		/* Just match the full identifier */
 		int error = hiredis_backend__read(data_p, len_p, type_p, _backend, short_oid);
-		if (error == GIT_SUCCESS)
+		if (error == GIT_OK)
 			git_oid_cpy(out_oid, short_oid);
 
 		return error;
 	} else if (len < GIT_OID_HEXSZ) {
 		/* TODO */
-		return GIT_ENOTIMPLEMENTED;
+		return GITERR_INVALID;
 	}
 }
 
@@ -160,7 +160,7 @@ int hiredis_backend__write(git_oid *id, git_odb_backend *_backend, const void *d
             "data %b ", id->id, GIT_OID_RAWSZ,
             (int) type, len, data, len);
 
-    error = (reply == NULL || reply->type == REDIS_REPLY_ERROR) ? GIT_ERROR : GIT_SUCCESS;
+    error = (reply == NULL || reply->type == REDIS_REPLY_ERROR) ? GIT_ERROR : GIT_OK;
 
     freeReplyObject(reply);
     return error;
@@ -183,7 +183,7 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char *host, int
 
     backend = calloc(1, sizeof (hiredis_backend));
     if (backend == NULL)
-        return GIT_ENOMEM;
+        return GITERR_NOMEMORY;
 
     backend->db = redisConnect(host, port);
     if (backend->db->err) {
@@ -200,6 +200,6 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char *host, int
 
     *backend_out = (git_odb_backend *) backend;
 
-    return GIT_SUCCESS;
+    return GIT_OK;
 }
 
