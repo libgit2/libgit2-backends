@@ -337,7 +337,7 @@ int hiredis_refdb_backend__iterator(git_reference_iterator **_iter, struct git_r
 
 	backend = (hiredis_refdb_backend *) _backend;
 
-	reply = redisCommand(backend->db, "KEYS %s:%s:refdb:%s", backend->prefix, backend->repo_path, (glob != NULL ? glob : "*"));
+	reply = redisCommand(backend->db, "KEYS %s:%s:refdb:refs/%s", backend->prefix, backend->repo_path, (glob != NULL ? glob : "*"));
 	if(reply->type != REDIS_REPLY_ARRAY) {
 		freeReplyObject(reply);
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
