@@ -486,9 +486,10 @@ int hiredis_refdb_backend__reflog_delete(git_refdb_backend *_backend, const char
 
 /* Constructors */
 
-int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, const char* path, const char *host, int port)
+int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, const char* path, const char *host, int port, char* password)
 {
 	hiredis_odb_backend *backend;
+	redisReply *reply;
 
 	backend = calloc(1, sizeof (hiredis_odb_backend));
 	if (backend == NULL)
@@ -497,8 +498,17 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 	backend->db = redisConnect(host, port);
 	if (backend->db->err) {
 		free(backend);
-		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage couldn't connect to redis server");
+		giterr_set_str(GITERR_REFERENCE, "Redis odb storage couldn't connect to redis server");
 		return GIT_ERROR;
+	}
+
+	if(password != NULL) {
+		reply = redisCommand(backend->db, "AUTH %s", password);
+		if (reply->type == REDIS_REPLY_ERROR) {
+			giterr_set_str(GITERR_REFERENCE, "Redis odb storage authentication with redis server failed");
+			return GIT_ERROR;
+		}
+		freeReplyObject(reply);
 	}
 
 	backend->prefix = prefix;
@@ -521,9 +531,10 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 	return GIT_OK;
 }
 
-int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefix, const char* path, const char *host, int port)
+int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefix, const char* path, const char *host, int port, char* password)
 {
 	hiredis_refdb_backend *backend;
+	redisReply *reply;
 
 	backend = calloc(1, sizeof(hiredis_refdb_backend));
 	if (backend == NULL)
@@ -534,6 +545,15 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 		free(backend);
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage couldn't connect to redis server");
 		return GIT_ERROR;
+	}
+
+	if(password != NULL) {
+		reply = redisCommand(backend->db, "AUTH %s", password);
+		if (reply->type == REDIS_REPLY_ERROR) {
+			giterr_set_str(GITERR_REFERENCE, "Redis refdb storage authentication with redis server failed");
+			return GIT_ERROR;
+		}
+		freeReplyObject(reply);
 	}
 
 	backend->prefix = prefix;
