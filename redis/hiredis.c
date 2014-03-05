@@ -34,16 +34,16 @@
 typedef struct {
 	git_odb_backend parent;
 
-	const char *prefix;
-	const char *repo_path;
+	char *prefix;
+	char *repo_path;
 	redisContext *db;
 } hiredis_odb_backend;
 
 typedef struct {
 	git_refdb_backend parent;
 
-	const char *prefix;
-	const char *repo_path;
+	char *prefix;
+	char *repo_path;
 	redisContext *db;
 } hiredis_refdb_backend;
 
@@ -214,6 +214,9 @@ void hiredis_odb_backend__free(git_odb_backend *_backend)
 
 	assert(_backend);
 	backend = (hiredis_odb_backend *) _backend;
+
+	free(backend->repo_path);
+	free(backend->prefix);
 
 	redisFree(backend->db);
 
@@ -449,6 +452,9 @@ void hiredis_refdb_backend__free(git_refdb_backend *_backend)
 	assert(_backend);
 	backend = (hiredis_refdb_backend *) _backend;
 
+	free(backend->repo_path);
+	free(backend->prefix);
+
 	redisFree(backend->db);
 
 	free(backend);
@@ -517,8 +523,8 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 
 	backend->db = sharedConnection;
 
-	backend->prefix = prefix;
-	backend->repo_path = path;
+	backend->prefix = strdup(prefix);
+	backend->repo_path = strdup(path);
 
 	backend->parent.version = 1;
 
@@ -566,8 +572,8 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 
 	backend->db = sharedConnection;
 
-	backend->prefix = prefix;
-	backend->repo_path = path;
+	backend->prefix = strdup(prefix);
+	backend->repo_path = strdup(path);
 
 	backend->parent.exists = &hiredis_refdb_backend__exists;
 	backend->parent.lookup = &hiredis_refdb_backend__lookup;
