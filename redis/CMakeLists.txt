@@ -10,7 +10,7 @@ SET (PC_LIBGIT2_LIBRARY_DIRS "" CACHE STRING "libgit2 path")
 SET (PC_LIBGIT2_INCLUDE_DIRS "" CACHE STRING "libgit2 include directories")
 
 # Allow overriding to local libgit2. I'm pretty sure I'm doing this wrong.
-IF (${PC_LIBGIT2_INCLUDE_DIRS} STREQUAL "")
+IF (PC_LIBGIT2_INCLUDE_DIRS STREQUAL "")
   INCLUDE(../CMake/FindLibgit2.cmake)
 ELSE ()
   SET (LIBGIT2_LIBRARIES ${PC_LIBGIT2_LIBRARY_DIRS})
