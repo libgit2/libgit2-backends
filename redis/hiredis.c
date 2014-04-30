@@ -364,7 +364,7 @@ int hiredis_refdb_backend__iterator(git_reference_iterator **_iter, struct git_r
 }
 
 int hiredis_refdb_backend__write(git_refdb_backend *_backend, const git_reference *ref, int force, const git_signature *who,
-	const char *message) // FIXME when rugged gets updated to the latest libgit2 update this to the latest backend API
+	const char *message, const git_oid *old, const char *old_target)
 {
 	hiredis_refdb_backend *backend;
 	int error = GIT_OK;
@@ -425,7 +425,7 @@ int hiredis_refdb_backend__rename(git_reference **out, git_refdb_backend *_backe
 	return hiredis_refdb_backend__lookup(out, _backend, new_name);
 }
 
-int hiredis_refdb_backend__del(git_refdb_backend *_backend, const char *ref_name) // FIXME when rugged gets updated to the latest libgit2 update this to the latest backend API
+int hiredis_refdb_backend__del(git_refdb_backend *_backend, const char *ref_name, const git_oid *old, const char *old_target)
 {
 	hiredis_refdb_backend *backend;
 	int error = GIT_OK;
