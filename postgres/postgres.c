@@ -170,7 +170,7 @@ int postgres_backend__write(git_oid *id, git_odb_backend *_backend, const void *
 	snprintf(type_str, sizeof(type_str), "%d", type);
 	snprintf(size_str, sizeof(size_str), "%d", len);
 	
-	result = PQexecParams(backend->db, "INSERT OR IGNORE INTO " GIT2_SCHEMA_NAME "." GIT2_TABLE_NAME "' VALUES ($1, $2, $3, $4);", 4, NULL, values, lengths, formats, 0);
+	result = PQexecParams(backend->db, "INSERT INTO " GIT2_SCHEMA_NAME "." GIT2_TABLE_NAME "' VALUES ($1, $2, $3, $4);", 4, NULL, values, lengths, formats, 0);
 
 	error = PQresultStatus(result);
 	PQclear(result);
