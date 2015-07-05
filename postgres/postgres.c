@@ -23,7 +23,7 @@
  * Boston, MA 02110-1301, USA.
  */
  
- #include <assert.h>
+#include <assert.h>
 #include <string.h>
 #include <git2.h>
 #include <git2/odb_backend.h>
@@ -31,8 +31,6 @@
 
 #define GIT2_TABLE_NAME "git2_odb"
 #define GIT2_SCHEMA_NAME "git2"
-
-//ues PQresultstats
 
 typedef struct {
 	git_odb_backend parent;
