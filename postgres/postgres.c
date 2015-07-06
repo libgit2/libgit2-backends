@@ -193,15 +193,20 @@ static int create_table(PGconn *db)
 {
 	PGresult *result;
 	
+	//This should use CREATE SCHEMA IF NOT EXISTS, but that was added in Postgres 9.3
 	static const char *schema_create = 
-		"CREATE SCHEMA IF NOT EXISTS " GIT2_SCHEMA_NAME;
+		"CREATE SCHEMA " GIT2_SCHEMA_NAME;
 	
+	//FIXME: using bytea for BLOBs might have some implications on the
+	//need to escape/unescape data before writes / after reads.
+	//However, it might well be that this is already handled by sending
+	//the parameter as binary. This should be tested in postgres_backend__write
 	static const char *sql_creat =
-		"CREATE TABLE " GIT2_SCHEMA_NAME "." GIT2_TABLE_NAME "' ("
-		"'oid' TEXT PRIMARY KEY NOT NULL,"
-		"'type' INTEGER NOT NULL,"
-		"'size' INTEGER NOT NULL,"
-		"'data' BLOB);";
+		"CREATE TABLE " GIT2_SCHEMA_NAME "." GIT2_TABLE_NAME " ("
+		"oid TEXT PRIMARY KEY NOT NULL,"
+		"type INTEGER NOT NULL,"
+		"size INTEGER NOT NULL,"
+		"data bytea);";
 
 	result = PQexec(db, schema_create);
 	if(PQresultStatus(result) != PGRES_COMMAND_OK && PQresultStatus(result) != PGRES_TUPLES_OK){
