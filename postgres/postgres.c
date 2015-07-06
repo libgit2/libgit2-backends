@@ -229,7 +229,7 @@ static int init_db(PGconn *db)
 	
 	result = PQexec(db, sql_check);
 	if(PQresultStatus(result) != PGRES_TUPLES_OK || PQntuples(result) < 1){
-		PQClear(result);
+		PQclear(result);
 		return create_table(db);
 	}
 	
