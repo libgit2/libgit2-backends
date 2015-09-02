@@ -15,5 +15,5 @@ ENDIF ()
 
 # Compile and link LIBGIT2
 INCLUDE_DIRECTORIES(${LIBGIT2_INCLUDE_DIRS} ${LIBMYSQL_INCLUDE_DIR})
-ADD_LIBRARY(git2-mysql mysql.c)
+ADD_LIBRARY(git2-mysql fnmatch.c mysql_odb.c mysql_refdb.c)
 TARGET_LINK_LIBRARIES(git2-mysql ${LIBGIT2_LIBRARIES} ${LIBMYSQL_LIBRARY})
