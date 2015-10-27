@@ -155,7 +155,7 @@ int hiredis_odb_backend__read_prefix(git_oid *out_oid,
 
 	/* TODO prefix */
 	giterr_set_str(GITERR_ODB, "Redis odb doesn't not implement oid prefix lookup");
-	return GITERR_INVALID;
+	return GIT_EINVALID;
 }
 
 int hiredis_odb_backend__exists(git_odb_backend *_backend, const git_oid *oid)
