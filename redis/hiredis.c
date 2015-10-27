@@ -510,9 +510,12 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 			return GIT_ERROR;
 		}
 
-		if(password != NULL) {
+		if (password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
-			if (reply->type == REDIS_REPLY_ERROR) {
+			if (reply == NULL || reply->type == REDIS_REPLY_ERROR) {
+				freeReplyObject(reply);
+				redisFree(sharedConnection);
+				free(backend);
 				giterr_set_str(GITERR_REFERENCE, "Redis odb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
@@ -559,9 +562,12 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 			return GIT_ERROR;
 		}
 
-		if(password != NULL) {
+		if (password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
 			if (reply->type == REDIS_REPLY_ERROR) {
+				freeReplyObject(reply);
+				redisFree(sharedConnection);
+				free(backend);
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
