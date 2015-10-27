@@ -78,7 +78,7 @@ int hiredis_odb_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_b
 
 	if (reply && reply->type == REDIS_REPLY_ARRAY) {
 		if (reply->element[0]->type != REDIS_REPLY_NIL &&
-				reply->element[0]->type != REDIS_REPLY_NIL) {
+				reply->element[1]->type != REDIS_REPLY_NIL) {
 			*type_p = (git_otype) atoi(reply->element[0]->str);
 			*len_p = (size_t) atoi(reply->element[1]->str);
 			error = GIT_OK;
