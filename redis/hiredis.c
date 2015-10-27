@@ -380,7 +380,6 @@ int hiredis_refdb_backend__write(git_refdb_backend *_backend, const git_referenc
 	backend = (hiredis_refdb_backend *) _backend;
 
 	target = git_reference_target(ref);
-	symbolic_target = git_reference_symbolic_target(ref);
 
 	/* FIXME handle force correctly */
 
