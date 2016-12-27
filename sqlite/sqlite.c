@@ -99,7 +99,7 @@ int sqlite_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_od
 }
 
 int sqlite_backend__read_prefix(git_oid *out_oid, void **data_p, size_t *len_p, git_otype *type_p, git_odb_backend *_backend,
-					const git_oid *short_oid, unsigned int len) {
+					const git_oid *short_oid, size_t len) {
 	if (len >= GIT_OID_HEXSZ) {
 		/* Just match the full identifier */
 		int error = sqlite_backend__read(data_p, len_p, type_p, _backend, short_oid);
@@ -134,7 +134,7 @@ int sqlite_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 }
 
 
-int sqlite_backend__write(git_oid *id, git_odb_backend *_backend, const void *data, size_t len, git_otype type)
+int sqlite_backend__write(git_odb_backend *_backend, const git_oid *id, const void *data, size_t len, git_otype type)
 {
 	int error;
 	sqlite_backend *backend;
