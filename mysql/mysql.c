@@ -97,7 +97,7 @@ int mysql_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backend
     if(mysql_stmt_fetch(backend->st_read_header) != 0)
       return GIT_ERROR;
 
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ENOTFOUND;
   }
@@ -181,7 +181,7 @@ int mysql_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb
         return GIT_ERROR;
     }
 
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ENOTFOUND;
   }
@@ -292,7 +292,7 @@ int mysql_backend__write(git_oid *oid, git_odb_backend *_backend, const void *da
   if (mysql_stmt_reset(backend->st_read_header) != 0)
     return GIT_ERROR;
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 void mysql_backend__free(git_odb_backend *_backend)
@@ -329,7 +329,7 @@ static int create_table(MYSQL *db)
   if (mysql_real_query(db, sql_create, strlen(sql_create)) != 0)
     return GIT_ERROR;
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 static int init_db(MYSQL *db)
@@ -354,7 +354,7 @@ static int init_db(MYSQL *db)
     error = create_table(db);
   } else if (num_rows > 0) {
     /* the table was found */
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ERROR;
   }
@@ -410,7 +410,7 @@ static int init_statements(mysql_backend *backend)
     return GIT_ERROR;
 
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
@@ -452,7 +452,7 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   backend->parent.free = &mysql_backend__free;
 
   *backend_out = (git_odb_backend *)backend;
-  return GIT_SUCCESS;
+  return GIT_OK;
 
 cleanup:
   mysql_backend__free((git_odb_backend *)backend);
