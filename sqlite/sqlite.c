@@ -143,9 +143,6 @@ int sqlite_backend__write(git_odb_backend *_backend, const git_oid *id, const vo
 
 	backend = (sqlite_backend *)_backend;
 
-	if ((error = git_odb_hash(id, data, len, type)) < 0)
-		return error;
-
 	error = SQLITE_ERROR;
 
 	if (sqlite3_bind_text(backend->st_write, 1, (char *)id->id, 20, SQLITE_TRANSIENT) == SQLITE_OK &&
