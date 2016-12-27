@@ -262,6 +262,7 @@ int git_odb_backend_sqlite(git_odb_backend **backend_out, const char *sqlite_db)
 	if (error < 0)
 		goto cleanup;
 
+	backend->parent.version = GIT_ODB_BACKEND_VERSION;
 	backend->parent.read = &sqlite_backend__read;
 	backend->parent.read_prefix = &sqlite_backend__read_prefix;
 	backend->parent.read_header = &sqlite_backend__read_header;
