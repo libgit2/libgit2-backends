@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <string.h>
 #include <git2.h>
-#include <git2/odb_backend.h>
+#include <git2/sys/odb_backend.h>
 #include <sqlite3.h>
 
 #define GIT2_TABLE_NAME "git2_odb"
