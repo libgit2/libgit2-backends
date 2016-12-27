@@ -82,13 +82,13 @@ int mysql_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backend
   if (mysql_stmt_num_rows(backend->st_read_header) == 1) {
     result_buffers[0].buffer_type = MYSQL_TYPE_TINY;
     result_buffers[0].buffer = type_p;
-    result_buffers[0].buffer_length = sizeof(type_p);
-    memset(type_p, 0, sizeof(type_p));
+    result_buffers[0].buffer_length = sizeof(*type_p);
+    memset(type_p, 0, sizeof(*type_p));
 
     result_buffers[1].buffer_type = MYSQL_TYPE_LONGLONG;
     result_buffers[1].buffer = len_p;
-    result_buffers[1].buffer_length = sizeof(len_p);
-    memset(len_p, 0, sizeof(len_p));
+    result_buffers[1].buffer_length = sizeof(*len_p);
+    memset(len_p, 0, sizeof(*len_p));
 
     if(mysql_stmt_bind_result(backend->st_read_header, result_buffers) != 0)
       return GIT_ERROR;
@@ -145,13 +145,13 @@ int mysql_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb
   if (mysql_stmt_num_rows(backend->st_read) == 1) {
     result_buffers[0].buffer_type = MYSQL_TYPE_TINY;
     result_buffers[0].buffer = type_p;
-    result_buffers[0].buffer_length = sizeof(type_p);
-    memset(type_p, 0, sizeof(type_p));
+    result_buffers[0].buffer_length = sizeof(*type_p);
+    memset(type_p, 0, sizeof(*type_p));
 
     result_buffers[1].buffer_type = MYSQL_TYPE_LONGLONG;
     result_buffers[1].buffer = len_p;
-    result_buffers[1].buffer_length = sizeof(len_p);
-    memset(len_p, 0, sizeof(len_p));
+    result_buffers[1].buffer_length = sizeof(*len_p);
+    memset(len_p, 0, sizeof(*len_p));
 
     // by setting buffer and buffer_length to 0, this tells libmysql
     // we want it to set data_len to the *actual* length of that field
