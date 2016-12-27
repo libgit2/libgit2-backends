@@ -422,8 +422,10 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   my_bool reconnect;
 
   backend = calloc(1, sizeof(mysql_backend));
-  if (backend == NULL)
-    return GIT_ENOMEM;
+  if (backend == NULL) {
+    giterr_set_oom();
+    return GIT_ERROR;
+  }
 
   backend->db = mysql_init(backend->db);
 
