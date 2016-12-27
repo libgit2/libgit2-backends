@@ -107,9 +107,9 @@ int sqlite_backend__read_prefix(git_oid *out_oid, void **data_p, size_t *len_p, 
 			git_oid_cpy(out_oid, short_oid);
 
 		return error;
-	} else if (len < GIT_OID_HEXSZ) {
-		return GIT_ENOTIMPLEMENTED;
 	}
+	/* not implemented (yet) */
+	return GIT_ERROR;
 }
 
 int sqlite_backend__exists(git_odb_backend *_backend, const git_oid *oid)
