@@ -246,9 +246,6 @@ int mysql_backend__write(git_odb_backend *_backend, const git_oid *oid, const vo
 
   backend = (mysql_backend *)_backend;
 
-  if ((error = git_odb_hash(oid, data, len, type)) < 0)
-    return error;
-
   memset(bind_buffers, 0, sizeof(bind_buffers));
 
   // bind the oid
