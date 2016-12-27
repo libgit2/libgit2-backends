@@ -81,7 +81,8 @@ int sqlite_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_od
 			*data_p = malloc(*len_p);
 
 			if (*data_p == NULL) {
-				error = GIT_ENOMEM;
+				giterr_set_oom();
+				error = GIT_ERROR;
 			} else {
 				memcpy(*data_p, sqlite3_column_blob(backend->st_read, 2), *len_p);
 				error = GIT_OK;
@@ -248,8 +249,10 @@ int git_odb_backend_sqlite(git_odb_backend **backend_out, const char *sqlite_db)
 	int error;
 
 	backend = calloc(1, sizeof(sqlite_backend));
-	if (backend == NULL)
-		return GIT_ENOMEM;
+	if (backend == NULL) {
+		giterr_set_oom();
+		return GIT_ERROR;
+	}
 
 	if (sqlite3_open(sqlite_db, &backend->db) != SQLITE_OK)
 		goto cleanup;
