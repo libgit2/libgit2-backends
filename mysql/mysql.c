@@ -286,7 +286,7 @@ int mysql_backend__write(git_odb_backend *_backend, const git_oid *oid, const vo
     return GIT_ERROR;
 
   // reset the statement for further use
-  if (mysql_stmt_reset(backend->st_read_header) != 0)
+  if (mysql_stmt_reset(backend->st_write) != 0)
     return GIT_ERROR;
 
   return GIT_OK;
