@@ -72,7 +72,7 @@ int hiredis_odb_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_b
 	backend = (hiredis_odb_backend *) _backend;
 	error = GIT_ERROR;
 
-	git_oid_tostr(str_id, GIT_OID_HEXSZ, oid);
+	git_oid_tostr(str_id, GIT_OID_HEXSZ + 1, oid);
 
 	reply = redisCommand(backend->db, "HMGET %s:%s:odb:%s %s %s", backend->prefix, backend->repo_path, str_id, "type", "size");
 
@@ -108,7 +108,7 @@ int hiredis_odb_backend__read(void **data_p, size_t *len_p, git_otype *type_p, g
 	backend = (hiredis_odb_backend *) _backend;
 	error = GIT_ERROR;
 
-	git_oid_tostr(str_id, GIT_OID_HEXSZ, oid);
+	git_oid_tostr(str_id, GIT_OID_HEXSZ + 1, oid);
 
 	reply = redisCommand(backend->db, "HMGET %s:%s:odb:%s %s %s %s", backend->prefix, backend->repo_path, str_id,
 			"type", "size", "data");
@@ -170,7 +170,7 @@ int hiredis_odb_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 	backend = (hiredis_odb_backend *) _backend;
 	found = 0;
 
-	git_oid_tostr(str_id, GIT_OID_HEXSZ, oid);
+	git_oid_tostr(str_id, GIT_OID_HEXSZ + 1, oid);
 
 	reply = redisCommand(backend->db, "exists %s:%s:odb:%s", backend->prefix, backend->repo_path, str_id);
 	if (reply->type == REDIS_REPLY_INTEGER)
@@ -193,7 +193,7 @@ int hiredis_odb_backend__write(git_odb_backend *_backend, const git_oid *oid, co
 	backend = (hiredis_odb_backend *) _backend;
 	error = GIT_ERROR;
 
-	git_oid_tostr(str_id, GIT_OID_HEXSZ, oid);
+	git_oid_tostr(str_id, GIT_OID_HEXSZ + 1, oid);
 
 	reply = redisCommand(backend->db, "HMSET %s:%s:odb:%s "
 			"type %d "
