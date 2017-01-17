@@ -78,7 +78,7 @@ int hiredis_odb_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_b
 
 	if (reply && reply->type == REDIS_REPLY_ARRAY) {
 		if (reply->element[0]->type != REDIS_REPLY_NIL &&
-				reply->element[0]->type != REDIS_REPLY_NIL) {
+				reply->element[1]->type != REDIS_REPLY_NIL) {
 			*type_p = (git_otype) atoi(reply->element[0]->str);
 			*len_p = (size_t) atoi(reply->element[1]->str);
 			error = GIT_OK;
@@ -155,7 +155,7 @@ int hiredis_odb_backend__read_prefix(git_oid *out_oid,
 
 	/* TODO prefix */
 	giterr_set_str(GITERR_ODB, "Redis odb doesn't not implement oid prefix lookup");
-	return GITERR_INVALID;
+	return GIT_EINVALID;
 }
 
 int hiredis_odb_backend__exists(git_odb_backend *_backend, const git_oid *oid)
@@ -380,7 +380,6 @@ int hiredis_refdb_backend__write(git_refdb_backend *_backend, const git_referenc
 	backend = (hiredis_refdb_backend *) _backend;
 
 	target = git_reference_target(ref);
-	symbolic_target = git_reference_symbolic_target(ref);
 
 	/* FIXME handle force correctly */
 
@@ -511,9 +510,12 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 			return GIT_ERROR;
 		}
 
-		if(password != NULL) {
+		if (password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
-			if (reply->type == REDIS_REPLY_ERROR) {
+			if (reply == NULL || reply->type == REDIS_REPLY_ERROR) {
+				freeReplyObject(reply);
+				redisFree(sharedConnection);
+				free(backend);
 				giterr_set_str(GITERR_REFERENCE, "Redis odb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
@@ -560,9 +562,12 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 			return GIT_ERROR;
 		}
 
-		if(password != NULL) {
+		if (password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
 			if (reply->type == REDIS_REPLY_ERROR) {
+				freeReplyObject(reply);
+				redisFree(sharedConnection);
+				free(backend);
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
