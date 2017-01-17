@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <string.h>
 #include <git2.h>
-#include <git2/odb_backend.h>
+#include <git2/sys/odb_backend.h>
 
 /* MySQL C Api docs:
  *   http://dev.mysql.com/doc/refman/5.1/en/c-api-function-overview.html
@@ -82,13 +82,13 @@ int mysql_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backend
   if (mysql_stmt_num_rows(backend->st_read_header) == 1) {
     result_buffers[0].buffer_type = MYSQL_TYPE_TINY;
     result_buffers[0].buffer = type_p;
-    result_buffers[0].buffer_length = sizeof(type_p);
-    memset(type_p, 0, sizeof(type_p));
+    result_buffers[0].buffer_length = sizeof(*type_p);
+    memset(type_p, 0, sizeof(*type_p));
 
     result_buffers[1].buffer_type = MYSQL_TYPE_LONGLONG;
     result_buffers[1].buffer = len_p;
-    result_buffers[1].buffer_length = sizeof(len_p);
-    memset(len_p, 0, sizeof(len_p));
+    result_buffers[1].buffer_length = sizeof(*len_p);
+    memset(len_p, 0, sizeof(*len_p));
 
     if(mysql_stmt_bind_result(backend->st_read_header, result_buffers) != 0)
       return GIT_ERROR;
@@ -97,7 +97,7 @@ int mysql_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backend
     if(mysql_stmt_fetch(backend->st_read_header) != 0)
       return GIT_ERROR;
 
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ENOTFOUND;
   }
@@ -145,13 +145,13 @@ int mysql_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb
   if (mysql_stmt_num_rows(backend->st_read) == 1) {
     result_buffers[0].buffer_type = MYSQL_TYPE_TINY;
     result_buffers[0].buffer = type_p;
-    result_buffers[0].buffer_length = sizeof(type_p);
-    memset(type_p, 0, sizeof(type_p));
+    result_buffers[0].buffer_length = sizeof(*type_p);
+    memset(type_p, 0, sizeof(*type_p));
 
     result_buffers[1].buffer_type = MYSQL_TYPE_LONGLONG;
     result_buffers[1].buffer = len_p;
-    result_buffers[1].buffer_length = sizeof(len_p);
-    memset(len_p, 0, sizeof(len_p));
+    result_buffers[1].buffer_length = sizeof(*len_p);
+    memset(len_p, 0, sizeof(*len_p));
 
     // by setting buffer and buffer_length to 0, this tells libmysql
     // we want it to set data_len to the *actual* length of that field
@@ -181,7 +181,7 @@ int mysql_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb
         return GIT_ERROR;
     }
 
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ENOTFOUND;
   }
@@ -235,7 +235,7 @@ int mysql_backend__exists(git_odb_backend *_backend, const git_oid *oid)
   return found;
 }
 
-int mysql_backend__write(git_oid *oid, git_odb_backend *_backend, const void *data, size_t len, git_otype type)
+int mysql_backend__write(git_odb_backend *_backend, const git_oid *oid, const void *data, size_t len, git_otype type)
 {
   int error;
   mysql_backend *backend;
@@ -245,9 +245,6 @@ int mysql_backend__write(git_oid *oid, git_odb_backend *_backend, const void *da
   assert(oid && _backend && data);
 
   backend = (mysql_backend *)_backend;
-
-  if ((error = git_odb_hash(oid, data, len, type)) < 0)
-    return error;
 
   memset(bind_buffers, 0, sizeof(bind_buffers));
 
@@ -292,7 +289,7 @@ int mysql_backend__write(git_oid *oid, git_odb_backend *_backend, const void *da
   if (mysql_stmt_reset(backend->st_read_header) != 0)
     return GIT_ERROR;
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 void mysql_backend__free(git_odb_backend *_backend)
@@ -329,7 +326,7 @@ static int create_table(MYSQL *db)
   if (mysql_real_query(db, sql_create, strlen(sql_create)) != 0)
     return GIT_ERROR;
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 static int init_db(MYSQL *db)
@@ -354,7 +351,7 @@ static int init_db(MYSQL *db)
     error = create_table(db);
   } else if (num_rows > 0) {
     /* the table was found */
-    error = GIT_SUCCESS;
+    error = GIT_OK;
   } else {
     error = GIT_ERROR;
   }
@@ -410,7 +407,7 @@ static int init_statements(mysql_backend *backend)
     return GIT_ERROR;
 
 
-  return GIT_SUCCESS;
+  return GIT_OK;
 }
 
 int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
@@ -422,8 +419,10 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   my_bool reconnect;
 
   backend = calloc(1, sizeof(mysql_backend));
-  if (backend == NULL)
-    return GIT_ENOMEM;
+  if (backend == NULL) {
+    giterr_set_oom();
+    return GIT_ERROR;
+  }
 
   backend->db = mysql_init(backend->db);
 
@@ -445,6 +444,7 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   if (error < 0)
     goto cleanup;
 
+  backend->parent.version = GIT_ODB_BACKEND_VERSION;
   backend->parent.read = &mysql_backend__read;
   backend->parent.read_header = &mysql_backend__read_header;
   backend->parent.write = &mysql_backend__write;
@@ -452,7 +452,7 @@ int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
   backend->parent.free = &mysql_backend__free;
 
   *backend_out = (git_odb_backend *)backend;
-  return GIT_SUCCESS;
+  return GIT_OK;
 
 cleanup:
   mysql_backend__free((git_odb_backend *)backend);
