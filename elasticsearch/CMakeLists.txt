@@ -2,6 +2,7 @@ PROJECT(LIBGIT2-elasticsearch C)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 INCLUDE(../CMake/FindLibgit2.cmake)
+INCLUDE(../CMake/FindCurl.cmake)
 
 # Build options
 OPTION (BUILD_SHARED_LIBS "Build Shared Library (OFF for Static)" ON)
