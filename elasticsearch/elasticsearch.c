@@ -27,7 +27,9 @@
 #include <string.h>
 
 #include <git2.h>
-#include "git2/odb_backend.h"
+#include <git2/sys/odb_backend.h>
+#include <git2/sys/refdb_backend.h>
+#include <git2/sys/refs.h>
 
 typedef struct {
 	git_odb_backend parent;
@@ -64,7 +66,7 @@ static char *elasticsearch_backend__build_key(const unsigned char *id, const cha
 int elasticsearch_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_backend *_backend, const git_oid *oid)
 {
 	elasticsearch_backend *backend;
-	elasticsearch_return ret = 0;
+	//elasticsearch_return ret = 0;
 	char *type_key, *size_key;
 	size_t type_key_len, type_value_len, size_key_len, *size_value, size_value_len;
 	uint32_t type_flags, size_flags;
@@ -112,7 +114,7 @@ read_header_cleanup:
 int elasticsearch_backend__read(void **data_p, size_t *len_p, git_otype *type_p, git_odb_backend *_backend, const git_oid *oid)
 {
 	elasticsearch_backend *backend;
-	elasticsearch_return ret = 0;
+	//elasticsearch_return ret = 0;
 	char *type_key, *data_key;
 	size_t type_key_len, data_key_len, type_value_len;
 	uint32_t type_flags, data_flags;
@@ -162,7 +164,7 @@ read_cleanup:
 int elasticsearch_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 {
 	elasticsearch_backend *backend;
-	elasticsearch_return ret = 0;
+	//elasticsearch_return ret = 0;
 	int found;
 	char *type_key;
 	size_t type_key_len;
@@ -194,7 +196,7 @@ int elasticsearch_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 int elasticsearch_backend__write(git_oid *oid, git_odb_backend *_backend, const void *data, size_t len, git_otype type)
 {
 	elasticsearch_backend *backend;
-	elasticsearch_return ret = 0;
+	//elasticsearch_return ret = 0;
 	char *type_key, *size_key, *data_key;
 	size_t type_key_len, size_key_len, data_key_len;
 	int status;
@@ -291,7 +293,7 @@ int git_odb_backend_elasticsearch(git_odb_backend **backend_out, const char *hos
 
 	*backend_out = (git_odb_backend *) backend;
  */
-	return GIT_SUCCESS;
+	return 0;
 
 /* cleanup:
 	free(backend);
