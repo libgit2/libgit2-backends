@@ -1,0 +1,11 @@
+build:
+  - image: alpine
+    workdir: /usr/local/src
+    commands:
+      - apk add --update alpine-sdk cmake libgit2-dev
+      - cd elasticsearch
+      - cmake -H. -Bbuild 
+      - cmake --build build
+artifacts:
+  images:
+    - name: git
